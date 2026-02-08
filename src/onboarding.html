@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="description"
+        content="Welcome to @10tion - stop doom-scrolling, reclaim your focus with smart blocking and mindful challenges">
+    <title>Welcome to @10tion</title>
+    <link rel="stylesheet" href="fonts.css">
+    <link rel="stylesheet" href="theme.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        --glass-glow: rgba(16, 185, 129, 0.15);
+
+        --surface-dark: #0a0f0d;
+        --surface-card: rgba(10, 15, 13, 0.7);
+        --text-primary: #ecfdf5;
+        --text-secondary: rgba(236, 253, 245, 0.7);
+        --text-muted: rgba(236, 253, 245, 0.5);
+        }
+
+        body {
+            font-family: 'Lexend', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: var(--surface-dark);
+            background-image:
+                radial-gradient(ellipse at 50% 0%, rgba(16, 185, 129, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(52, 211, 153, 0.08) 0%, transparent 40%),
+                radial-gradient(ellipse at 20% 60%, rgba(6, 95, 70, 0.1) 0%, transparent 40%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(0 0 20px rgba(16, 185, 129, 0.4));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--emerald-300) 0%, var(--emerald-500) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            font-weight: 300;
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+            letter-spacing: 0.02em;
+        }
+
+        .features {
+            display: grid;
+            gap: 1rem;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        .feature {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            box-shadow:
+                0 4px 24px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(52, 211, 153, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .feature h3 {
+            color: var(--emerald-400);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .feature p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 300;
+            line-height: 1.6;
+        }
+
+        .cta {
+            margin-top: 2.5rem;
+        }
+
+        button {
+            font-family: 'Lexend', sans-serif;
+            background: linear-gradient(135deg, var(--emerald-500) 0%, var(--emerald-600) 100%);
+            color: var(--surface-dark);
+            border: none;
+            padding: 16px 48px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow:
+                0 4px 16px rgba(16, 185, 129, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 8px 32px rgba(16, 185, 129, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .settings-link {
+            margin-top: 1.2rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 300;
+        }
+
+        .settings-link a {
+            color: var(--emerald-400);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .settings-link a:hover {
+            color: var(--emerald-300);
+        }
+
+        .tip {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 24px;
+            padding: 12px 16px;
+            background: rgba(16, 185, 129, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(52, 211, 153, 0.1);
+        }
+
+        .tip::before {
+            content: "💡 ";
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <img src="icons/icon128.png" alt="@10tion" class="logo">
+        <h1>Welcome to @10tion</h1>
+        <p class="tagline">Reclaim your attention from endless scrolling.</p>
+
+        <div class="features">
+            <div class="feature">
+                <h3>🎯 Smart Blocking</h3>
+                <p>Automatically blocks TikTok, YouTube Shorts, Instagram Reels, and other addictive short-form content.
+                    Customize which sites to block in settings.</p>
+            </div>
+            <div class="feature">
+                <h3>🧠 Mindful Challenges</h3>
+                <p>To take a break, complete a mindful moment — a breathing exercise, a math problem, or a brain teaser.
+                    This
+                    moment of friction helps you think twice.</p>
+            </div>
+            <div class="feature">
+                <h3>⏱️ Timed Breaks</h3>
+                <p>After completing a challenge, you get 2, 5, or 10 minutes of access. Then you're back to focus mode.
+                </p>
+                <p style="font-size: 0.8em; color: var(--text-muted); margin-top: 0.5rem;">ℹ️ Focus mode means the
+                    extension will block distracting content again, helping you stay productive.</p>
+            </div>
+            <div class="feature">
+                <h3>🛡️ Smart Limits</h3>
+                <p>After <span id="break-consecutive-limit">2</span> consecutive breaks, you'll have a <span
+                        id="break-cooldown-minutes">15</span>-minute cooldown before taking another.</p>
+                <p style="font-size: 0.8em; color: var(--text-muted); margin-top: 0.5rem;">ℹ️ This pause helps break the
+                    habit loop—research shows short delays reduce impulsive behavior and help you regain control.</p>
+            </div>
+        </div>
+
+        <div class="cta">
+            <button id="get-started">Get Started →</button>
+        </div>
+
+        <p class="settings-link">
+            Or <a href="#" id="open-settings">customize your settings</a> first
+        </p>
+    </div>
+
+    <script src="onboarding.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,11 @@
+node_modules/
+dist/
+*.zip
+.DS_Store
+e2e/screenshots/
+e2e/test-results/
+playwright-report/
+.at10tion-test-profile/
+
+.vscode/
+AGENTS.md

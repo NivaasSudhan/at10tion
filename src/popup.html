@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="description" content="@10tion popup - view focus status, break timer, and blocking statistics">
+  <title>@10tion - Reclaim Your Attention</title>
+  <link rel="stylesheet" href="fonts.css">
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      width: 320px;
+      padding: 16px;
+      font-family: 'Lexend', -apple-system, sans-serif;
+      background: var(--surface-dark);
+      background-image:
+        radial-gradient(ellipse at 50% 0%, rgba(16, 185, 129, 0.12) 0%, transparent 60%);
+      color: var(--text-primary);
+    }
+
+    .status-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 20px;
+      border-radius: 16px;
+      text-align: center;
+      margin-bottom: 16px;
+      border: 1px solid var(--glass-border);
+      box-shadow:
+        0 4px 24px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .status-active {
+      color: var(--emerald-400);
+      font-weight: 500;
+    }
+
+    .status-blocked {
+      color: #f87171;
+      font-weight: 500;
+    }
+
+    .timer-wrapper {
+      position: relative;
+      display: inline-block;
+      margin: 12px 0;
+    }
+
+    .timer-ring {
+      transform: rotate(-90deg);
+    }
+
+    .timer-ring-circle {
+      fill: transparent;
+      stroke: rgba(52, 211, 153, 0.15);
+      stroke-width: 4;
+    }
+
+    .timer-ring-progress {
+      fill: transparent;
+      stroke: var(--emerald-500);
+      stroke-width: 4;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 1s linear;
+      filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.5));
+    }
+
+    .timer-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1.6em;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.6;
+      }
+    }
+
+    /* Respect user's motion preferences for vestibular disorders */
+    @media (prefers-reduced-motion: no-preference) {
+      .timer-active .timer-text {
+        animation: pulse 2s ease-in-out infinite;
+      }
+    }
+
+    button {
+      font-family: 'Lexend', sans-serif;
+      width: 100%;
+      margin-top: 12px;
+      background: linear-gradient(135deg, var(--emerald-500) 0%, var(--emerald-600) 100%);
+      color: var(--surface-dark);
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+    }
+
+    #end-break-btn {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+    }
+
+    .settings-link {
+      text-align: center;
+      margin-top: 12px;
+      font-size: 0.85rem;
+    }
+
+    a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    a:hover {
+      color: var(--emerald-400);
+    }
+
+    .stats-container {
+      display: flex;
+      justify-content: space-around;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 14px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      border: 1px solid var(--glass-border);
+    }
+
+    .stat-item {
+      text-align: center;
+      cursor: help;
+    }
+
+    .stat-value {
+      display: block;
+      font-size: 1.2em;
+      font-weight: 600;
+      color: var(--emerald-400);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .stat-label {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      font-weight: 300;
+      letter-spacing: 0.02em;
+    }
+
+    #break-limit-info {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 10px;
+    }
+
+    .trend-container {
+      text-align: center;
+      margin-bottom: 12px;
+      font-size: 0.75rem;
+    }
+
+    .trend-text {
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    .trend-text.trend-improved {
+      color: var(--emerald-400);
+    }
+
+    .peak-hours-text {
+      color: var(--text-muted);
+      margin: 4px 0 0 0;
+      font-size: 0.7rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="status-card">
+    <div id="status-text">Loading...</div>
+    <div id="timer-wrapper" class="timer-wrapper">
+      <svg class="timer-ring" width="100" height="100">
+        <circle class="timer-ring-circle" cx="50" cy="50" r="45"></circle>
+        <circle id="timer-progress" class="timer-ring-progress" cx="50" cy="50" r="45" stroke-dasharray="283"
+          stroke-dashoffset="0"></circle>
+      </svg>
+      <div id="timer" class="timer-text">--:--</div>
+    </div>
+    <div id="break-limit-info">--/-- breaks left today</div>
+  </div>
+
+  <div id="stats-container" class="stats-container">
+    <!-- Stats populated by JS -->
+  </div>
+
+  <div id="trend-container" class="trend-container">
+    <!-- Trend info populated by JS -->
+  </div>
+
+  <button id="end-break-btn" style="display: none;">End Break Now</button>
+
+  <div class="settings-link" style="display: flex; justify-content: space-between; align-items: center;">
+    <a href="#" id="open-options">⚙️ Settings</a>
+    <a href="https://github.com/NivaasSudhan/at10tion/issues" target="_blank" rel="noopener"
+      style="font-size: 0.8rem;">💬 Feedback</a>
+  </div>
+
+  <script src="popup.js" type="module"></script>
+</body>
+
+</html>
