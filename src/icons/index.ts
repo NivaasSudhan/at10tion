@@ -179,51 +179,6 @@ export function getStatusIcon(type: StatusType): IconResult {
 }
 
 // =============================================================================
-// HTML Generation
-// =============================================================================
-
-/**
- * Generate HTML for a platform icon
- * Creates inline SVG for bundled icons, styled span for fallbacks
- */
-export function renderPlatformIcon(domain: string, size: number = 16): string {
-    const icon = getPlatformIcon(domain);
-    
-    if (icon.svg) {
-        return `<img src="${chrome.runtime.getURL(`icons/platforms/${icon.svg}`)}" 
-                     width="${size}" height="${size}" 
-                     alt="${domain}" class="platform-icon" />`;
-    }
-    
-    if (icon.emoji) {
-        return `<span class="icon-emoji" style="font-size: ${size}px;">${icon.emoji}</span>`;
-    }
-    
-    return `<span class="icon-ascii" style="color: ${icon.color}; font-weight: bold;">${icon.ascii}</span>`;
-}
-
-/**
- * Generate HTML for a status icon
- */
-export function renderStatusIcon(type: StatusType, size: number = 16): string {
-    const icon = getStatusIcon(type);
-    
-    if (icon.emoji) {
-        return `<span class="icon-emoji" style="font-size: ${size}px;">${icon.emoji}</span>`;
-    }
-    
-    return `<span class="icon-ascii" style="color: ${icon.color}; font-size: ${size}px; font-weight: bold;">${icon.ascii}</span>`;
-}
-
-/**
- * Get text representation (for messages, not HTML)
- */
-export function getIconText(type: StatusType): string {
-    const icon = getStatusIcon(type);
-    return icon.emoji || icon.ascii;
-}
-
-// =============================================================================
 // CSS Styles
 // =============================================================================
 

@@ -29,6 +29,7 @@ if ((globalThis as any).__at10tion_initialized) {
 (globalThis as any).__at10tion_initialized = true;
 
 let breakTimerInterval: ReturnType<typeof setInterval> | undefined;
+let eligibilityInterval: ReturnType<typeof setInterval> | undefined;
 let blockObserver: MutationObserver | null = null;
 let shadowHost: HTMLElement | null = null;
 let shadowRoot: ShadowRoot | null = null;
@@ -90,332 +91,31 @@ function setupNavigationDetection() {
 
 setupNavigationDetection();
 
-// CSS for Shadow DOM
-const STYLES = `
-:host {
-  all: initial;
-  display: block;
-  z-index: 2147483647;
-  position: fixed;
-  top: 0;
-  left: 0;
-  font-size: 16px; /* Enforce base font size */
-  line-height: 1.5;
-}
+// Cache for loaded CSS
+let cachedStyles: string | null = null;
 
-#work-focus-block {
-  box-sizing: border-box;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(20, 18, 16, 0.98);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #f5f5f4;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  font-size: 16px;
-  animation: fadeIn 0.4s ease-out;
-}
+/**
+ * Load CSS from overlay.css file
+ */
+async function loadStyles(): Promise<string> {
+  if (cachedStyles) return cachedStyles;
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-#work-focus-block * {
-  box-sizing: border-box;
-}
-
-.block-container {
-  text-align: center;
-  max-width: 500px;
-  width: 90%;
-  padding: 32px;
-  background: #1c1b1a;
-  border-radius: 12px;
-  border: 1px solid #3f3c38;
-  box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
-  animation: slideUp 0.5s ease-out;
-}
-
-.content-card {
-  margin: 32px 0;
-  padding: 24px;
-  background: #2d2b29;
-  border-radius: 8px;
-  border: 1px solid #3f3c38;
-  animation: slideUp 0.6s ease-out 0.1s both;
-}
-
-blockquote {
-  font-size: 19px;
-  font-style: italic;
-  margin-bottom: 16px;
-  line-height: 1.5;
-  color: #e7e5e4;
-}
-
-cite {
-  color: #a8a29e;
-  font-size: 16px;
-}
-
-.challenge-text {
-  font-size: 19px;
-  margin-bottom: 16px;
-  color: #e7e5e4;
-}
-
-input[type="text"],
-input[type="number"] {
-  background: #1c1b1a;
-  border: 1px solid #57534e;
-  color: #f5f5f4;
-  padding: 13px;
-  border-radius: 4px;
-  font-size: 16px;
-  width: 100%;
-  text-align: center;
-}
-
-input:focus {
-  outline: none;
-  border-color: #4ade80;
-}
-
-.controls {
-  margin: 32px 0;
-  transition: opacity 0.3s;
-}
-
-.duration-selector {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-  margin: 16px 0;
-}
-
-.duration-selector label {
-  cursor: pointer;
-  padding: 8px 16px;
-  background: #2d2b29;
-  border-radius: 4px;
-  border: 1px solid #3f3c38;
-  color: #d6d3d1;
-  display: flex; /* Ensure radio and text align */
-  align-items: center;
-  gap: 8px;
-  font-size: 16px;
-}
-
-.duration-selector label.selected {
-  background: #4ade80;
-  color: #1c1b1a;
-  border-color: #4ade80;
-  font-weight: bold;
-}
-
-.duration-selector input[type="radio"] {
-    accent-color: #1c1b1a; /* Dark radio button on green background */
-}
-
-button {
-  background: #4ade80;
-  color: #1c1b1a;
-  border: none;
-  padding: 13px 32px;
-  border-radius: 4px;
-  font-size: 16px;
-  cursor: pointer;
-  width: 100%;
-  font-weight: bold;
-  transition: transform 0.1s, opacity 0.2s;
-}
-
-button.secondary {
-  background: #2d2b29;
-  color: #a8a29e;
-  margin-top: 16px;
-  border: 1px solid #3f3c38;
-}
-
-button:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-button:active {
-  transform: translateY(0);
-}
-
-#at10tion-timer {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: rgba(28, 27, 26, 0.9);
-  color: #4ade80;
-  padding: 10px 15px;
-  border-radius: 20px;
-  font-family: monospace;
-  font-size: 16px;
-  border: 1px solid #4ade80;
-  box-shadow: 0 0 10px rgba(74, 222, 128, 0.2);
-}
-
-/* Shake animation */
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-  20%, 40%, 60%, 80% { transform: translateX(5px); }
-}
-.shake { animation: shake 0.5s ease-in-out; }
-
-/* Breathing exercise styles */
-.breathing-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 24px 0;
-}
-
-/* Animation 1: Morphing Blob - ROYGBIV Rainbow */
-.breathing-blob {
-  width: 120px;
-  height: 120px;
-  background: linear-gradient(
-    135deg,
-    #ff6b6b 0%,      /* Red */
-    #ffa94d 14%,     /* Orange */
-    #ffd43b 28%,     /* Yellow */
-    #69db7c 42%,     /* Green */
-    #4dabf7 56%,     /* Blue */
-    #748ffc 70%,     /* Indigo */
-    #da77f2 84%,     /* Violet */
-    #ff6b6b 100%     /* Red (loop) */
-  );
-  background-size: 300% 300%;
-  border-radius: 60% 40% 50% 50% / 50% 60% 40% 50%;
-  animation: breathe 5s ease-in-out infinite, morph 5s ease-in-out infinite, rainbowShift 5s ease-in-out infinite;
-  box-shadow: 
-    0 0 60px rgba(255, 107, 107, 0.3),
-    0 0 120px rgba(255, 169, 77, 0.2),
-    0 0 180px rgba(105, 219, 124, 0.15);
-  filter: saturate(1.2);
-}
-
-@keyframes breathe {
-  0%, 100% { 
-    transform: scale(0.8);
-    opacity: 0.7;
-  }
-  50% { 
-    transform: scale(1.2);
-    opacity: 1;
+  try {
+    const cssUrl = chrome.runtime.getURL('overlay.css');
+    const response = await fetch(cssUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to load CSS: ${response.status}`);
+    }
+    cachedStyles = await response.text();
+    return cachedStyles;
+  } catch (err) {
+    console.error('Failed to load overlay.css:', err);
+    // Fallback: return empty string, the overlay will still work but unstyled
+    return '';
   }
 }
 
-@keyframes morph {
-  0%, 100% { border-radius: 60% 40% 50% 50% / 50% 60% 40% 50%; }
-  25% { border-radius: 50% 60% 40% 50% / 40% 50% 60% 50%; }
-  50% { border-radius: 40% 50% 60% 50% / 50% 40% 50% 60%; }
-  75% { border-radius: 50% 40% 50% 60% / 60% 50% 40% 50%; }
-}
-
-@keyframes rainbowShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* Animation 2: Wave/Ocean */
-.breathing-wave {
-  width: 160px;
-  height: 100px;
-  position: relative;
-  overflow: hidden;
-  border-radius: 8px;
-}
-
-.breathing-wave::before,
-.breathing-wave::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: -50%;
-  width: 200%;
-  height: 100%;
-  background: linear-gradient(180deg, transparent 50%, rgba(74, 222, 128, 0.3) 100%);
-  border-radius: 40%;
-  animation: wave 5s ease-in-out infinite;
-}
-
-.breathing-wave::after {
-  animation-delay: -2.5s;
-  opacity: 0.6;
-}
-
-@keyframes wave {
-  0%, 100% { 
-    transform: translateY(30px) rotate(0deg);
-  }
-  50% { 
-    transform: translateY(-10px) rotate(5deg);
-  }
-}
-
-/* Animation 3: Breathing Circle */
-.breathing-circle {
-  width: 100px;
-  height: 100px;
-  border: 4px solid #4ade80;
-  border-radius: 50%;
-  animation: circleBreath 5s ease-in-out infinite;
-  box-shadow: 0 0 20px rgba(74, 222, 128, 0.3), inset 0 0 20px rgba(74, 222, 128, 0.1);
-}
-
-@keyframes circleBreath {
-  0%, 100% { 
-    transform: scale(0.7);
-    border-width: 4px;
-    box-shadow: 0 0 20px rgba(74, 222, 128, 0.2), inset 0 0 15px rgba(74, 222, 128, 0.1);
-  }
-  50% { 
-    transform: scale(1.3);
-    border-width: 2px;
-    box-shadow: 0 0 40px rgba(74, 222, 128, 0.5), inset 0 0 30px rgba(74, 222, 128, 0.2);
-  }
-}
-
-.breathing-instruction {
-  margin-top: 20px;
-  font-size: 20px;
-  color: #a8a29e;
-  font-weight: 500;
-  transition: opacity 0.5s ease;
-}
-
-.breathing-countdown {
-  margin-top: 8px;
-  font-size: 14px;
-  color: #57534e;
-  font-family: monospace;
-}
-
-.breathing-complete {
-  color: #4ade80;
-  font-weight: bold;
-}
-`;
-
-function getShadowRoot(): ShadowRoot {
+async function getShadowRoot(): Promise<ShadowRoot> {
   if (!shadowHost) {
     shadowHost = document.createElement('div');
     shadowHost.id = 'at10tion-shadow-host';
@@ -425,9 +125,10 @@ function getShadowRoot(): ShadowRoot {
 
     shadowRoot = shadowHost.attachShadow({ mode: 'closed' });
 
-    // Inject styles
+    // Inject styles - load from file for better maintainability
+    const styles = await loadStyles();
     const styleEl = document.createElement('style');
-    styleEl.textContent = STYLES;
+    styleEl.textContent = styles;
     shadowRoot.appendChild(styleEl);
   }
   // Re-append if missing (e.g. document body cleared)
@@ -587,7 +288,7 @@ async function checkState() {
       startBreakTimer(breakState.breakEndTime);
     }
     // Ensure block is gone
-    const root = getShadowRoot();
+    const root = await getShadowRoot();
     const block = root.getElementById('work-focus-block');
     if (block) {
       block.remove();
@@ -598,15 +299,15 @@ async function checkState() {
   } else {
     // Not on break. If block not present, show it.
     logger.debug('Showing block overlay');
-    const root = getShadowRoot();
+    const root = await getShadowRoot();
     if (!root.getElementById('work-focus-block')) {
-      showBlock();
+      await showBlock();
     }
   }
 }
 
 async function showBlock() {
-  const root = getShadowRoot();
+  const root = await getShadowRoot();
   if (root.getElementById('work-focus-block')) return;
 
   // Enable pointer events on host so we can interact with overlay
@@ -633,17 +334,21 @@ async function showBlock() {
 
   if (content.type === 'quotes') {
     // Randomly select breathing animation style for variety
-    const breathingStyles = ['breathing-blob', 'breathing-wave', 'breathing-circle'];
+    const breathingStyles = ['breathing-blob', 'breathing-blob-emerald', 'breathing-circle'];
     const selectedStyle = breathingStyles[getSecureRandomIndex(breathingStyles.length)];
 
     contentHtml = `
         <div class="content-card">
           <blockquote>"${escapeHtml(content.text)}"</blockquote>
           <cite>- ${escapeHtml(content.author || 'Unknown')}</cite>
-          <div class="breathing-container">
-            <div class="${selectedStyle}"></div>
-            <p class="breathing-instruction">Inhale...</p>
-            <p class="breathing-countdown">15 seconds</p>
+          <div class="breathing-section">
+            <div class="breathing-wrapper">
+              <div class="${selectedStyle}"></div>
+            </div>
+            <div class="breathing-text-area">
+              <p class="breathing-instruction">Inhale...</p>
+              <p class="breathing-countdown">15 seconds</p>
+            </div>
           </div>
         </div>
       `;
@@ -851,7 +556,8 @@ async function showBlock() {
     unlockControls.style.pointerEvents = 'auto';
   }
 
-  unlockBtn?.addEventListener('click', async () => {
+  // Check break eligibility and set button state accordingly
+  const updateUnlockButtonState = async () => {
     const data = await chrome.storage.local.get([STORAGE_KEYS.BREAK_STATE, STORAGE_KEYS.BREAK_LIMITS]);
     const currentState = (data[STORAGE_KEYS.BREAK_STATE] as BreakState) || {
       breakActive: false, breakEndTime: 0, breakDurationMinutes: 0,
@@ -861,19 +567,57 @@ async function showBlock() {
 
     const { allowed, reason } = canTakeBreak(currentState, limits);
     if (!allowed) {
-      const errorDiv = overlay.querySelector('.break-limit-error') as HTMLElement || (() => {
-        const div = document.createElement('div');
-        div.className = 'break-limit-error';
-        div.style.cssText = 'color: #10b981; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 10px; border-radius: 6px; margin-top: 10px; text-align: center;';
-        overlay.querySelector('.controls')?.appendChild(div);
-        return div;
-      })();
+      // Show focus checkpoint error
+      let errorDiv = overlay.querySelector('.break-limit-error') as HTMLElement;
+      if (!errorDiv) {
+        errorDiv = document.createElement('div');
+        errorDiv.className = 'break-limit-error';
+        errorDiv.style.cssText = 'color: #10b981; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 10px; border-radius: 6px; margin-top: 10px; text-align: center;';
+        overlay.querySelector('.controls')?.appendChild(errorDiv);
+      }
       const focusIcon = getStatusIcon('focus');
       const iconHtml = focusIcon.emoji || `<span style="color: ${focusIcon.color};">${focusIcon.ascii}</span>`;
-      errorDiv.innerHTML = `<strong>${iconHtml} Focus Checkpoint</strong><br/>${reason}`;
+      const newHtml = `<strong>${iconHtml} Focus Checkpoint</strong><br/>${reason?.headline}<br/><small style="opacity: 0.8; display: block; margin-top: 4px;">${reason?.detail}</small>`;
+      if (errorDiv.innerHTML !== newHtml) {
+        errorDiv.innerHTML = newHtml;
+      }
+
+      // Disable button
+      unlockBtn?.setAttribute('disabled', 'true');
+      unlockBtn?.classList.add('disabled');
+    } else {
+      // Remove error if exists
+      const errorDiv = overlay.querySelector('.break-limit-error');
+      if (errorDiv) errorDiv.remove();
+
+      // Enable button
+      unlockBtn?.removeAttribute('disabled');
+      unlockBtn?.classList.remove('disabled');
+    }
+  };
+
+  // Initialize button state
+  updateUnlockButtonState();
+  if (eligibilityInterval) clearInterval(eligibilityInterval);
+  eligibilityInterval = setInterval(updateUnlockButtonState, 1000);
+
+  unlockBtn?.addEventListener('click', async () => {
+    // Re-check eligibility on click (in case state changed)
+    const data = await chrome.storage.local.get([STORAGE_KEYS.BREAK_STATE, STORAGE_KEYS.BREAK_LIMITS]);
+    const currentState = (data[STORAGE_KEYS.BREAK_STATE] as BreakState) || {
+      breakActive: false, breakEndTime: 0, breakDurationMinutes: 0,
+      breaksToday: 0, breaksTodayDate: getTodayString(), consecutiveBreaks: 0, lastBreakEndTime: 0
+    };
+    const limits = (data[STORAGE_KEYS.BREAK_LIMITS] as BreakLimits) || DEFAULT_BREAK_LIMITS;
+
+    const { allowed, reason } = canTakeBreak(currentState, limits);
+    if (!allowed) {
+      // Show focus checkpoint error (will also disable button via updateUnlockButtonState)
+      updateUnlockButtonState();
       return;
     }
 
+    // Proceed with break logic
     const durationInput = overlay.querySelector('input[name="duration"]:checked') as HTMLInputElement;
     const duration = Number.parseInt(durationInput.value);
     const endTime = Date.now() + (duration * 60 * 1000);
@@ -902,24 +646,27 @@ async function showBlock() {
   });
 }
 
-function removeBlock() {
+async function removeBlock() {
+  if (eligibilityInterval) {
+    clearInterval(eligibilityInterval);
+    eligibilityInterval = undefined;
+  }
   if (blockObserver) {
     blockObserver.disconnect();
     blockObserver = null;
   }
-  const root = getShadowRoot();
+  const root = await getShadowRoot();
   const overlay = root.getElementById('work-focus-block');
   if (overlay) {
     overlay.remove();
     document.body.style.overflow = '';
     if (shadowHost) shadowHost.style.pointerEvents = 'none';
-
   }
 }
 
-function startBreakTimer(endTime: number) {
+async function startBreakTimer(endTime: number) {
   stopBreakTimer();
-  const root = getShadowRoot();
+  const root = await getShadowRoot();
 
   // Ensure host sees events? No, timer is informational, check if it needs pointer events
   // Timer has pointer-events: none in CSS, so host being pointer-events: auto or none doesn't matter much for clicks on timer
@@ -970,10 +717,10 @@ function startBreakTimer(endTime: number) {
   breakTimerInterval = setInterval(update, 1000);
 }
 
-function stopBreakTimer() {
+async function stopBreakTimer() {
   if (breakTimerInterval) clearInterval(breakTimerInterval);
   breakTimerInterval = undefined;
-  const root = getShadowRoot();
+  const root = await getShadowRoot();
   const el = root.getElementById('at10tion-timer');
   if (el) el.remove();
 }
@@ -983,6 +730,7 @@ let pollInterval: ReturnType<typeof setInterval> | undefined;
 
 // Cleanup on page unload to prevent orphaned intervals/observers
 globalThis.addEventListener('beforeunload', () => {
+  if (eligibilityInterval) clearInterval(eligibilityInterval);
   if (breakTimerInterval) clearInterval(breakTimerInterval);
   if (pollInterval) clearInterval(pollInterval);
   if (shortFormObserver) {

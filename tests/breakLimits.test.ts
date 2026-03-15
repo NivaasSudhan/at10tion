@@ -14,8 +14,8 @@ describe("canTakeBreak messaging", () => {
         };
         const result = canTakeBreak(state, DEFAULT_BREAK_LIMITS);
         expect(result.allowed).toBe(false);
-        expect(result.reason).toContain("great job");
-        expect(result.reason).toContain("(*)");
+        expect(result.reason?.headline).toContain("great job");
+        expect(result.reason?.detail).toContain("midnight");
     });
 
     test("cooldown message is educational", () => {
@@ -30,9 +30,9 @@ describe("canTakeBreak messaging", () => {
         };
         const result = canTakeBreak(state, DEFAULT_BREAK_LIMITS);
         expect(result.allowed).toBe(false);
-        expect(result.reason).toContain("Focus Pause");
-        expect(result.reason).toContain("cooldown");
-        expect(result.reason).toContain("15-minute");
+        expect(result.reason?.headline).toContain("Focus Pause");
+        expect(result.reason?.detail).toContain("cooldown");
+        expect(result.reason?.detail).toContain("15-minute");
     });
 
     test("allows break when under limits", () => {

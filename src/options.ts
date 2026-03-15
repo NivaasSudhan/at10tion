@@ -6,6 +6,7 @@ import {
     DEFAULT_BLOCKED_SITES,
     SHORT_FORM_CAPABLE_DOMAINS,
     STORAGE_KEYS,
+    UI_TIMING,
     isValidDomain
 } from './constants';
 
@@ -18,6 +19,7 @@ import { safeStorageGet, showErrorState } from './errorBoundary';
 // =============================================================================
 
 let currentSites: BlockedSite[] = [];
+const shouldAutoClose = new URLSearchParams(globalThis.location.search).has('source');
 
 // =============================================================================
 // Load Settings
@@ -65,8 +67,8 @@ function renderBlockedSites() {
     const customSites = currentSites.filter(s => s.isCustom);
 
     // Clear containers
-    defaultContainer.innerHTML = '';
-    customContainer.innerHTML = '';
+    defaultContainer.replaceChildren();
+    customContainer.replaceChildren();
 
     // Render default platforms with 3-mode radio buttons
     for (const site of defaultSites) {
@@ -185,7 +187,7 @@ function createSiteIconElement(domain: string): HTMLElement {
         img.width = 16;
         img.height = 16;
         img.alt = domain;
-        img.className = 'platform-icon';
+        img.className = `platform-icon icon-${domain.replace(/\./g, '-')}`;
         return img;
     }
 
@@ -294,6 +296,10 @@ async function saveSettings() {
     });
 
     showSavedToast();
+
+    if (shouldAutoClose) {
+        setTimeout(() => window.close(), UI_TIMING.SETTINGS_AUTO_CLOSE_MS);
+    }
 }
 
 // =============================================================================
@@ -301,10 +307,10 @@ async function saveSettings() {
 // =============================================================================
 
 function debounce(fn: () => void, delay: number) {
-    let timeoutId: number | undefined;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
     return () => {
         clearTimeout(timeoutId);
-        timeoutId = setTimeout(fn, delay) as unknown as number;
+        timeoutId = setTimeout(fn, delay);
     };
 }
 
@@ -313,7 +319,7 @@ function showSavedToast() {
     if (msg) {
         msg.textContent = '[OK] Saved';
         msg.style.display = 'inline';
-        setTimeout(() => { msg.style.display = 'none'; }, 1500);
+        setTimeout(() => { msg.style.display = 'none'; }, UI_TIMING.TOAST_DISPLAY_MS);
     }
 }
 

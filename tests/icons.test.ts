@@ -2,10 +2,7 @@ import { describe, expect, test, beforeEach } from "bun:test";
 import { 
     canRenderEmoji, 
     getPlatformIcon, 
-    getStatusIcon, 
-    renderPlatformIcon, 
-    renderStatusIcon,
-    getIconText,
+    getStatusIcon,
     type StatusType 
 } from "../src/icons/index";
 
@@ -83,40 +80,6 @@ describe("Icon System - 3-Tier Fallback", () => {
         test("streak icon is orange", () => {
             const icon = getStatusIcon('streak');
             expect(icon.color).toBe('#F97316');
-        });
-    });
-
-    describe("Icon Rendering", () => {
-        test("getIconText returns emoji or ascii", () => {
-            const text = getIconText('stop');
-            expect(typeof text).toBe('string');
-            expect(text.length).toBeGreaterThan(0);
-        });
-    });
-
-    describe("HTML Rendering", () => {
-        test("renderPlatformIcon returns valid HTML for known platforms", () => {
-            // Skip if chrome API not available (test environment)
-            if (typeof chrome === 'undefined') {
-                return;
-            }
-            const html = renderPlatformIcon('youtube.com', 16);
-            expect(html).toContain('img');
-            expect(html).toContain('youtube.svg');
-            expect(html).toContain('width="16"');
-            expect(html).toContain('class="platform-icon"');
-        });
-
-        test("renderPlatformIcon returns icon for unknown platforms", () => {
-            const html = renderPlatformIcon('unknown.com', 16);
-            expect(html).toContain('icon-ascii');
-            expect(html).toContain('[U]');
-        });
-
-        test("renderStatusIcon returns styled HTML", () => {
-            const html = renderStatusIcon('on', 20);
-            expect(html).toContain('icon-emoji');
-            expect(html).toContain('font-size: 20px');
         });
     });
 

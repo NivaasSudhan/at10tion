@@ -25,20 +25,6 @@ export async function safeStorageGet<T extends Record<string, unknown>>(
 }
 
 /**
- * Safe wrapper for chrome.storage.local.set
- * Returns false on error
- */
-export async function safeStorageSet(items: Record<string, unknown>): Promise<boolean> {
-    try {
-        await chrome.storage.local.set(items);
-        return true;
-    } catch (error) {
-        console.error('[ErrorBoundary] Storage set failed:', error);
-        return false;
-    }
-}
-
-/**
  * Display a user-friendly error state in a container
  */
 export function showErrorState(
@@ -78,23 +64,3 @@ export function showErrorState(
     container.appendChild(errorDiv);
 }
 
-/**
- * Show a subtle inline error message
- */
-export function showInlineError(message: string, duration: number = 5000): void {
-    // Remove any existing inline error
-    const existing = document.querySelector('.inline-error');
-    if (existing) {
-        existing.remove();
-    }
-
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'inline-error';
-    errorDiv.textContent = message;
-    document.body.appendChild(errorDiv);
-
-    // Auto-remove after duration
-    setTimeout(() => {
-        errorDiv.remove();
-    }, duration);
-}

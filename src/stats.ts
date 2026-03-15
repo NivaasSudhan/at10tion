@@ -171,8 +171,6 @@ export interface WeeklyStats {
     timeOnSiteThisWeek: number;
     /** Peak hours of vulnerability (hours with most blocks) */
     peakHours: number[];
-    /** Estimated minutes saved (15 minutes per block) */
-    minutesSaved: number;
 }
 
 export interface WeeklyTrend {
@@ -247,7 +245,7 @@ export function getWeeklyStats(stats: Stats): WeeklyStats {
     // Find peak hours (top 2 hours with most blocks)
     const peakHours = findPeakHours(hourlyTotals, 2);
 
-    return { blocksThisWeek, breaksThisWeek, timeOnSiteThisWeek, peakHours, minutesSaved: blocksThisWeek * 15 };
+    return { blocksThisWeek, breaksThisWeek, timeOnSiteThisWeek, peakHours };
 }
 
 /**

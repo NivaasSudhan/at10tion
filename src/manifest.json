@@ -59,9 +59,10 @@
             "resources": [
                 "icons/icon128.png",
                 "icons/platforms/*.svg",
-                "styles.css",
                 "fonts.css",
                 "theme.css",
+                "styles.css",
+                "overlay.css",
                 "fonts/*"
             ],
             "matches": [

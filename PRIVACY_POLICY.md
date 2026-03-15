@@ -121,7 +121,6 @@ We may update this Privacy Policy from time to time. We will notify you of any c
 If you have questions or concerns about this Privacy Policy or our data practices:
 
 - **GitHub Issues:** [github.com/NivaasSudhan/at10tion/issues](https://github.com/NivaasSudhan/at10tion/issues)
-- **Email:** [Add your support email here]
 
 ## Summary
 

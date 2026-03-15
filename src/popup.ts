@@ -52,7 +52,10 @@ function updateActiveBreakUI(
     statusText.innerHTML = renderIconWithText(onIcon, 'ON BREAK');
     statusText.className = 'status-active';
     endBreakBtn.style.display = 'block';
-    timerWrapper?.classList.add('timer-active');
+    if (timerWrapper) {
+        timerWrapper.style.display = '';
+        timerWrapper.classList.add('timer-active');
+    }
 
     const remaining = breakState.breakEndTime - Date.now();
     const totalDuration = breakState.breakDurationMinutes * 60 * 1000;
@@ -79,10 +82,9 @@ function updateFocusModeUI(
     statusText.innerHTML = renderIconWithText(offIcon, 'FOCUS MODE');
     statusText.className = 'status-blocked';
     endBreakBtn.style.display = 'none';
-    timerWrapper?.classList.remove('timer-active');
-    timerDisplay.textContent = '--:--';
-    if (timerProgress) {
-        timerProgress.style.strokeDashoffset = '0';
+    if (timerWrapper) {
+        timerWrapper.style.display = 'none';
+        timerWrapper.classList.remove('timer-active');
     }
 }
 
@@ -228,7 +230,7 @@ document.getElementById('end-break-btn')?.addEventListener('click', async () => 
 
 document.getElementById('open-options')?.addEventListener('click', (e) => {
     e.preventDefault();
-    chrome.runtime.openOptionsPage();
+    chrome.tabs.create({ url: chrome.runtime.getURL('options.html?source=popup') });
 });
 
 // Timer interval - only runs during active breaks

@@ -44,6 +44,15 @@ export interface BreakState {
     lastBreakEndTime: number;
 }
 
+/** Structured reason for why a break was denied (no HTML — rendering is the UI's job) */
+export interface BreakDenialReason {
+    type: 'daily_limit' | 'cooldown';
+    /** Primary message shown to the user */
+    headline: string;
+    /** Explanatory subtext (plain text) */
+    detail: string;
+}
+
 // =============================================================================
 // Default Platforms (with short-form support)
 // =============================================================================
@@ -114,6 +123,25 @@ export const POLLING_INTERVALS = {
     BREAK_CHECK_MINUTES: 0.5,
     /** Background alarm for daily reset check (minutes) */
     DAILY_RESET_CHECK_MINUTES: 1,
+    /** Delay before registering content scripts on install (ms) - waits for storage defaults */
+    STARTUP_REGISTRATION_DELAY_MS: 1000,
+} as const;
+
+// =============================================================================
+// UI Timing Constants
+// =============================================================================
+
+export const UI_TIMING = {
+    /** Standard 1-second tick for countdowns, timers, and breathing exercises (ms) */
+    TICK_INTERVAL_MS: 1000,
+    /** Duration of the shake animation on incorrect answers (ms) */
+    SHAKE_ANIMATION_MS: 500,
+    /** Delay before auto-focusing the answer input (ms) */
+    INPUT_FOCUS_DELAY_MS: 100,
+    /** Delay before auto-closing the settings tab after save (ms) */
+    SETTINGS_AUTO_CLOSE_MS: 1000,
+    /** Duration the "Saved" toast is visible (ms) */
+    TOAST_DISPLAY_MS: 1500,
 } as const;
 
 // =============================================================================
@@ -135,67 +163,6 @@ export const STORAGE_KEYS = {
 // =============================================================================
 
 /**
- * Safely parse a URL, returning null if invalid
- */
-function parseUrl(url: string): URL | null {
-    try {
-        return new URL(url);
-    } catch {
-        return null;
-    }
-}
-
-/**
- * Check if a hostname matches a site's domain (including subdomains)
- */
-function matchesDomain(hostname: string, domain: string): boolean {
-    return hostname === domain ||
-        hostname === `www.${domain}` ||
-        hostname.endsWith(`.${domain}`);
-}
-
-/**
- * Check if a path matches any of the short-form paths
- */
-function matchesShortFormPath(pathname: string, shortFormPaths: string[]): boolean {
-    return shortFormPaths.some(blockedPath => pathname.includes(blockedPath));
-}
-
-/**
- * Check if a site configuration should block the given URL parts
- */
-function siteBlocksUrl(site: BlockedSite, hostname: string, pathname: string): boolean {
-    if (site.mode === 'disabled') {
-        return false;
-    }
-
-    if (!matchesDomain(hostname, site.domain)) {
-        return false;
-    }
-
-    if (site.mode === 'entire-site') {
-        return true;
-    }
-
-    return site.mode === 'short-form' &&
-        site.shortFormPaths !== undefined &&
-        matchesShortFormPath(pathname, site.shortFormPaths);
-}
-
-/**
- * Check if a site should be blocked based on its configuration
- */
-export function shouldBlockUrl(url: string, sites: BlockedSite[]): boolean {
-    const parsedUrl = parseUrl(url);
-    if (!parsedUrl) {
-        return false;
-    }
-
-    const { hostname, pathname } = parsedUrl;
-    return sites.some(site => siteBlocksUrl(site, hostname, pathname));
-}
-
-/**
  * Get today's date as YYYY-MM-DD string
  */
 export function getTodayString(): string {
@@ -203,9 +170,10 @@ export function getTodayString(): string {
 }
 
 /**
- * Check if user can take a break given current state and limits
+ * Check if user can take a break given current state and limits.
+ * Returns plain-text structured data — rendering is handled by the UI layer.
  */
-export function canTakeBreak(state: BreakState, limits: BreakLimits): { allowed: boolean; reason?: string } {
+export function canTakeBreak(state: BreakState, limits: BreakLimits): { allowed: boolean; reason?: BreakDenialReason } {
     const today = getTodayString();
 
     // Reset daily count if it's a new day
@@ -215,7 +183,11 @@ export function canTakeBreak(state: BreakState, limits: BreakLimits): { allowed:
     if (breaksToday >= limits.dailyLimit) {
         return {
             allowed: false,
-            reason: `You've used all ${limits.dailyLimit} breaks today—great job protecting your focus! (*) Fresh start at midnight.`
+            reason: {
+                type: 'daily_limit',
+                headline: `You've used all ${limits.dailyLimit} breaks today — great job protecting your focus!`,
+                detail: 'Fresh start at midnight.',
+            }
         };
     }
 
@@ -226,7 +198,11 @@ export function canTakeBreak(state: BreakState, limits: BreakLimits): { allowed:
             const remainingMins = Math.ceil((cooldownEnd - Date.now()) / 60000);
             return {
                 allowed: false,
-                reason: `|| Focus Pause: ${remainingMins} min remaining<br/><small style="opacity: 0.8; display: block; margin-top: 5px;">After 2 consecutive breaks, a 15-minute cooldown helps prevent mindless scrolling habits. Use this time to reset and refocus!</small>`
+                reason: {
+                    type: 'cooldown',
+                    headline: `Focus Pause: ${remainingMins} min remaining`,
+                    detail: `After ${limits.consecutiveLimit} consecutive breaks, a ${limits.cooldownMinutes}-minute cooldown helps prevent mindless scrolling habits. Use this time to reset and refocus!`,
+                }
             };
         }
     }

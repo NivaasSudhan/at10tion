@@ -17,7 +17,7 @@
 
 ### From Chrome Web Store
 
-🚀 **[Install @10tion from Chrome Web Store](https://chrome.google.com/webstore/detail/at10tion)** (Coming soon)
+🚀 **Install @10tion from Chrome Web Store** — Coming soon
 
 ### Development Install
 
@@ -148,7 +148,7 @@ bun test --grep "escapeHtml"
 bun run test:e2e
 ```
 
-**Test Coverage:** 61 tests passing, 100% pass rate
+**Test Coverage:** 52 tests passing, 100% pass rate
 
 ## Contributing
 
@@ -164,10 +164,6 @@ Contributions are welcome! Please open an issue first to discuss what you would 
 ### Development Guidelines
 
 See [AGENTS.md](AGENTS.md) for detailed coding standards and project guidelines.
-
-## Release Checklist
-
-See [RELEASE_READINESS.md](RELEASE_READINESS.md) for comprehensive release preparation documentation.
 
 ## License
 

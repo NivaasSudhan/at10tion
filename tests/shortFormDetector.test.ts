@@ -1,7 +1,6 @@
 import { describe, expect, test, beforeEach, mock } from "bun:test";
 import {
     getDetectorForDomain,
-    urlMatchesShortForm,
     type ShortFormDetector
 } from "../src/shortFormDetector";
 
@@ -46,46 +45,6 @@ describe("ShortFormDetector", () => {
         test("should return null for unknown domain", () => {
             const detector = getDetectorForDomain("example.com");
             expect(detector).toBeNull();
-        });
-    });
-
-    describe("urlMatchesShortForm", () => {
-        test("should match YouTube /shorts/ path", () => {
-            const detector = getDetectorForDomain("youtube.com")!;
-            expect(urlMatchesShortForm("/shorts/abc123", detector)).toBe(true);
-        });
-
-        test("should not match YouTube /watch path", () => {
-            const detector = getDetectorForDomain("youtube.com")!;
-            expect(urlMatchesShortForm("/watch?v=abc123", detector)).toBe(false);
-        });
-
-        test("should match Instagram /reels/ path", () => {
-            const detector = getDetectorForDomain("instagram.com")!;
-            expect(urlMatchesShortForm("/reels/abc123", detector)).toBe(true);
-        });
-
-        test("should match Instagram /reel/ path", () => {
-            const detector = getDetectorForDomain("instagram.com")!;
-            expect(urlMatchesShortForm("/reel/abc123", detector)).toBe(true);
-        });
-
-        test("should not match Instagram profile path", () => {
-            const detector = getDetectorForDomain("instagram.com")!;
-            expect(urlMatchesShortForm("/username/", detector)).toBe(false);
-        });
-
-        test("should match Facebook /reel/ path", () => {
-            const detector = getDetectorForDomain("facebook.com")!;
-            expect(urlMatchesShortForm("/reel/123456", detector)).toBe(true);
-        });
-
-        test("TikTok should have empty URL paths (all content is short-form)", () => {
-            const detector = getDetectorForDomain("tiktok.com")!;
-            expect(detector.urlPaths).toEqual([]);
-            // Any path should not match via URL (DOM detection handles TikTok)
-            expect(urlMatchesShortForm("/", detector)).toBe(false);
-            expect(urlMatchesShortForm("/@username", detector)).toBe(false);
         });
     });
 

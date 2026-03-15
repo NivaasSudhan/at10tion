@@ -15,33 +15,31 @@
             padding: 0;
         }
 
-        --glass-glow: rgba(16, 185, 129, 0.15);
 
-        --surface-dark: #0a0f0d;
-        --surface-card: rgba(10, 15, 13, 0.7);
-        --text-primary: #ecfdf5;
-        --text-secondary: rgba(236, 253, 245, 0.7);
-        --text-muted: rgba(236, 253, 245, 0.5);
-        }
 
         body {
             font-family: 'Lexend', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            background: var(--surface-dark);
+            background: #0a0f0d;
+            background: var(--surface-dark, #0a0f0d);
             background-image:
                 radial-gradient(ellipse at 50% 0%, rgba(16, 185, 129, 0.15) 0%, transparent 50%),
                 radial-gradient(ellipse at 80% 80%, rgba(52, 211, 153, 0.08) 0%, transparent 40%),
                 radial-gradient(ellipse at 20% 60%, rgba(6, 95, 70, 0.1) 0%, transparent 40%);
-            color: var(--text-primary);
+            color: #ecfdf5;
+            color: var(--text-primary, #ecfdf5);
             min-height: 100vh;
             display: flex;
-            justify-content: center;
+            /* justify-content: center; removed to prevent top clipping on overflow */
             align-items: center;
-            padding: 20px;
+            padding: 40px 20px;
+            /* Increased padding */
         }
 
         .container {
             max-width: 600px;
             text-align: center;
+            margin: auto;
+            /* Ensures vertical centering when space allows, and safe scrolling when not */
         }
 
         .logo {
@@ -49,7 +47,7 @@
             height: 80px;
             margin-bottom: 1.5rem;
             filter: drop-shadow(0 0 20px rgba(16, 185, 129, 0.4));
-            animation: float 3s ease-in-out infinite;
+            animation: float 4s ease-in-out infinite;
         }
 
         @keyframes float {
@@ -60,7 +58,7 @@
             }
 
             50% {
-                transform: translateY(-8px);
+                transform: translateY(-20px);
             }
         }
 
@@ -77,7 +75,8 @@
         .tagline {
             font-size: 1.1rem;
             font-weight: 300;
-            color: var(--text-secondary);
+            color: rgba(236, 253, 245, 0.8);
+            color: var(--text-secondary, rgba(236, 253, 245, 0.8));
             margin-bottom: 2.5rem;
             letter-spacing: 0.02em;
         }
@@ -90,12 +89,14 @@
         }
 
         .feature {
-            background: var(--glass-bg);
+            background: rgba(16, 185, 129, 0.08);
+            background: var(--glass-bg, rgba(16, 185, 129, 0.08));
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             padding: 1.5rem;
             border-radius: 16px;
-            border: 1px solid var(--glass-border);
+            border: 1px solid rgba(52, 211, 153, 0.2);
+            border: 1px solid var(--glass-border, rgba(52, 211, 153, 0.2));
             box-shadow:
                 0 4px 24px rgba(0, 0, 0, 0.2),
                 inset 0 1px 0 rgba(255, 255, 255, 0.05);
@@ -111,7 +112,8 @@
         }
 
         .feature h3 {
-            color: var(--emerald-400);
+            color: #34d399;
+            color: var(--emerald-400, #34d399);
             margin-bottom: 0.5rem;
             font-size: 1rem;
             font-weight: 500;
@@ -121,7 +123,8 @@
         }
 
         .feature p {
-            color: var(--text-secondary);
+            color: rgba(236, 253, 245, 0.9);
+            color: var(--text-secondary, rgba(236, 253, 245, 0.9));
             font-size: 0.9rem;
             font-weight: 300;
             line-height: 1.6;
@@ -160,24 +163,28 @@
 
         .settings-link {
             margin-top: 1.2rem;
-            color: var(--text-muted);
+            color: rgba(236, 253, 245, 0.6);
+            color: var(--text-muted, rgba(236, 253, 245, 0.6));
             font-size: 0.9rem;
             font-weight: 300;
         }
 
         .settings-link a {
-            color: var(--emerald-400);
+            color: #34d399;
+            color: var(--emerald-400, #34d399);
             text-decoration: none;
             transition: color 0.2s ease;
         }
 
         .settings-link a:hover {
-            color: var(--emerald-300);
+            color: #6ee7b7;
+            color: var(--emerald-300, #6ee7b7);
         }
 
         .tip {
             font-size: 0.75rem;
-            color: var(--text-muted);
+            color: rgba(236, 253, 245, 0.6);
+            color: var(--text-muted, rgba(236, 253, 245, 0.6));
             margin-top: 24px;
             padding: 12px 16px;
             background: rgba(16, 185, 129, 0.05);
@@ -213,14 +220,16 @@
                 <h3>⏱️ Timed Breaks</h3>
                 <p>After completing a challenge, you get 2, 5, or 10 minutes of access. Then you're back to focus mode.
                 </p>
-                <p style="font-size: 0.8em; color: var(--text-muted); margin-top: 0.5rem;">ℹ️ Focus mode means the
+                <p style="font-size: 0.8em; color: rgba(236, 253, 245, 0.7); margin-top: 0.5rem;">ℹ️ Focus mode means
+                    the
                     extension will block distracting content again, helping you stay productive.</p>
             </div>
             <div class="feature">
                 <h3>🛡️ Smart Limits</h3>
                 <p>After <span id="break-consecutive-limit">2</span> consecutive breaks, you'll have a <span
                         id="break-cooldown-minutes">15</span>-minute cooldown before taking another.</p>
-                <p style="font-size: 0.8em; color: var(--text-muted); margin-top: 0.5rem;">ℹ️ This pause helps break the
+                <p style="font-size: 0.8em; color: rgba(236, 253, 245, 0.7); margin-top: 0.5rem;">ℹ️ This pause helps
+                    break the
                     habit loop—research shows short delays reduce impulsive behavior and help you regain control.</p>
             </div>
         </div>
@@ -234,7 +243,7 @@
         </p>
     </div>
 
-    <script src="onboarding.js"></script>
+    <script src="onboarding.js" type="module"></script>
 </body>
 
 </html>

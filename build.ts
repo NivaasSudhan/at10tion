@@ -49,6 +49,7 @@ const staticFiles = [
     "options.html",
     "onboarding.html",
     "styles.css",
+    "overlay.css",
     "fonts.css",
     "theme.css",
 ];

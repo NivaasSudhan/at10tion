@@ -124,14 +124,6 @@ export function getDetectorForDomain(hostname: string): ShortFormDetector | null
 }
 
 /**
- * Check if the current URL path matches known short-form paths.
- * This is the existing URL-based detection.
- */
-export function urlMatchesShortForm(pathname: string, detector: ShortFormDetector): boolean {
-    return detector.urlPaths.some(path => pathname.includes(path));
-}
-
-/**
  * Check if the DOM contains short-form content.
  * This is the new DOM-based detection for embedded content.
  */
@@ -242,22 +234,29 @@ export function observeShortFormContent(
     detector: ShortFormDetector,
     onDetected: (items: Element[]) => void
 ): MutationObserver {
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
     const observer = new MutationObserver((mutations) => {
         // Batch check: only run detection if there are added nodes
         const hasAddedNodes = mutations.some(m => m.addedNodes.length > 0);
         if (!hasAddedNodes) return;
 
-        // Check if any new short-form content appeared
-        if (domContainsShortForm(detector)) {
-            const items = getShortFormItems(detector);
-            // Filter to only newly added items (not already processed)
-            const newItems = items.filter(item => {
-                const el = item as HTMLElement;
-                return !el.dataset.at10tionHidden && !el.dataset.at10tionBlurred;
-            });
-            if (newItems.length > 0) {
-                onDetected(newItems);
-            }
+        if (timeoutId === null) {
+            timeoutId = setTimeout(() => {
+                timeoutId = null;
+                // Check if any new short-form content appeared
+                if (domContainsShortForm(detector)) {
+                    const items = getShortFormItems(detector);
+                    // Filter to only newly added items (not already processed)
+                    const newItems = items.filter(item => {
+                        const el = item as HTMLElement;
+                        return !el.dataset.at10tionHidden && !el.dataset.at10tionBlurred;
+                    });
+                    if (newItems.length > 0) {
+                        onDetected(newItems);
+                    }
+                }
+            }, 250);
         }
     });
 
@@ -269,19 +268,4 @@ export function observeShortFormContent(
     return observer;
 }
 
-/**
- * Combined check: URL-based OR DOM-based detection.
- * Returns true if short-form content is present.
- */
-export function hasShortFormContent(hostname: string, pathname: string): boolean {
-    const detector = getDetectorForDomain(hostname);
-    if (!detector) return false;
 
-    // First check URL (fast)
-    if (urlMatchesShortForm(pathname, detector)) {
-        return true;
-    }
-
-    // Then check DOM (requires parsing)
-    return domContainsShortForm(detector);
-}

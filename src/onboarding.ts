@@ -1,6 +1,6 @@
 /// <reference types="chrome"/>
 
-import { DEFAULT_BREAK_LIMITS } from './constants';
+import { DEFAULT_BREAK_LIMITS, STORAGE_KEYS } from './constants';
 
 // Inject dynamic break limit values from constants (single source of truth)
 document.addEventListener('DOMContentLoaded', () => {
@@ -17,15 +17,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 document.getElementById('get-started')?.addEventListener('click', () => {
     // Mark onboarding as complete
-    chrome.storage.local.set({ onboarding_complete: true }, () => {
+    chrome.storage.local.set({ [STORAGE_KEYS.ONBOARDING_COMPLETE]: true }, () => {
         globalThis.close();
     });
 });
 
 document.getElementById('open-settings')?.addEventListener('click', (e) => {
     e.preventDefault();
-    chrome.storage.local.set({ onboarding_complete: true }, () => {
-        chrome.runtime.openOptionsPage();
+    chrome.storage.local.set({ [STORAGE_KEYS.ONBOARDING_COMPLETE]: true }, () => {
+        chrome.tabs.create({ url: chrome.runtime.getURL('options.html?source=onboarding') });
     });
 });
 

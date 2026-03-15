@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { fuzzyMatch, getRandomContent, quotes, teasers, getRandomOfType, escapeHtml } from "../src/data";
+import { fuzzyMatch, quotes, teasers, getRandomOfType, escapeHtml } from "../src/data";
 
 describe("Data Module", () => {
     describe("escapeHtml - XSS Prevention", () => {
@@ -84,12 +84,6 @@ describe("Data Module", () => {
     });
 
     describe("Content Generation", () => {
-        test("getRandomContent should return valid content", () => {
-            const content = getRandomContent();
-            expect(content).toBeDefined();
-            expect(['quotes', 'math', 'teasers']).toContain(content.type);
-        });
-
         test("getRandomOfType('quotes') returns a quote", () => {
             const content = getRandomOfType('quotes');
             expect(content.type).toBe('quotes');

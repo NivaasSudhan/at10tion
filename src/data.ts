@@ -11,6 +11,7 @@ export interface MathProblem {
 export interface Teaser {
     question: string;
     answer: string;
+    altAnswers?: string[];
 }
 
 export const quotes: Quote[] = [
@@ -62,11 +63,11 @@ export const math: MathProblem[] = [
 export const teasers: Teaser[] = [
     { question: "What has keys, but no locks; space, but no room; you can enter, but never go outside?", answer: "Keyboard" },
     { question: "I speak without a mouth and hear without ears. I have no body, but I come alive with wind. What am I?", answer: "Echo" },
-    { question: "The more of this there is, the less you see. What is it?", answer: "Darkness" },
-    { question: "What has many keys but can't open a single lock?", answer: "Piano" },
+    { question: "The more of this there is, the less you see. What is it?", answer: "Darkness", altAnswers: ["Fog", "Smoke", "Mist"] },
+    { question: "What has many keys but can't open a single lock?", answer: "Piano", altAnswers: ["Keyboard", "Typewriter"] },
     { question: "What comes once in a minute, twice in a moment, but never in a thousand years?", answer: "The letter M" },
     { question: "I am not alive, but I grow; I don't have lungs, but I need air; I don't have a mouth, but water kills me. What am I?", answer: "Fire" },
-    { question: "What has to be broken before you can use it?", answer: "Egg" },
+    { question: "What has to be broken before you can use it?", answer: "Egg", altAnswers: ["Seal", "Silence", "Promise", "Glow stick"] },
     { question: "I’m tall when I’m young, and I’m short when I’m old. What am I?", answer: "Candle" },
     { question: "What is full of holes but still holds water?", answer: "Sponge" },
     { question: "What goes up but never comes down?", answer: "Age" },
@@ -175,12 +176,6 @@ export function getSecureRandomIndex(max: number): number {
     return value % max;
 }
 
-export function getRandomContent() {
-    const types = ['quotes', 'math', 'teasers'] as const;
-    const type = types[getSecureRandomIndex(types.length)];
-    return getRandomOfType(type);
-}
-
 export function getRandomOfType(type: 'quotes' | 'math' | 'teasers') {
     switch (type) {
         case 'quotes':
@@ -260,5 +255,13 @@ export function fuzzyMatch(userAnswer: string, correctAnswer: string): boolean {
     }
 
     return false;
+}
+
+/**
+ * Check if user's answer matches any of the accepted answers (primary + alternatives)
+ */
+export function fuzzyMatchAny(userAnswer: string, correctAnswer: string, altAnswers?: string[]): boolean {
+    if (fuzzyMatch(userAnswer, correctAnswer)) return true;
+    return altAnswers?.some(alt => fuzzyMatch(userAnswer, alt)) ?? false;
 }
 

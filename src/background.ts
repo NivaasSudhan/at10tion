@@ -195,5 +195,5 @@ chrome.runtime.onStartup.addListener(updateContentScriptRegistration);
 // Also run onInstalled after the default data init
 chrome.runtime.onInstalled.addListener(() => {
     // Wait a bit for the initial storage set to handle defaults
-    setTimeout(updateContentScriptRegistration, 1000);
+    setTimeout(updateContentScriptRegistration, POLLING_INTERVALS.STARTUP_REGISTRATION_DELAY_MS);
 });

@@ -10,9 +10,6 @@
     <link rel="stylesheet" href="theme.css">
     <link rel="stylesheet" href="styles.css">
     <style>
-            --text-muted: rgba(236, 253, 245, 0.5);
-        }
-
         body {
             max-width: 700px;
             margin: 0 auto;
@@ -93,11 +90,13 @@
 
         /* Site items */
         .site-item {
-            background: rgba(0, 0, 0, 0.2);
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border-radius: 12px;
             padding: 14px;
             margin-bottom: 10px;
-            border: 1px solid rgba(52, 211, 153, 0.1);
+            border: 1px solid var(--glass-border);
         }
 
         .site-header {
@@ -110,6 +109,44 @@
         .site-domain {
             font-weight: 500;
             color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .platform-icon,
+        .icon-emoji,
+        .icon-ascii {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 1.2rem;
+            transition: all 0.2s ease;
+        }
+
+        .platform-icon {
+            padding: 8px;
+            /* Adjust padding for SVG icons */
+            box-sizing: border-box;
+            /* Ensure padding doesn't affect width/height */
+            object-fit: contain;
+            /* Keep aspect ratio */
+        }
+
+
+        /* Full-bleed icons (Snapchat, Instagram) */
+        .platform-icon.icon-snapchat-com,
+        .platform-icon.icon-instagram-com {
+            padding: 0;
+            background: none;
+            border: none;
+            border-radius: 10px;
+            /* Optional, matches container radius */
         }
 
         .mode-selector {
@@ -307,7 +344,7 @@
         }
 
         p {
-            color: var(--text-muted);
+            color: var(--text-secondary);
         }
     </style>
 </head>
@@ -343,9 +380,9 @@
         <div
             style="background: rgba(16, 185, 129, 0.1); border-left: 3px solid var(--emerald-500); padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 0.85rem;">
             <strong style="color: var(--emerald-400);">ℹ️ How it works:</strong><br>
-            <span style="color: var(--text-secondary);">
+            <span style="color: var(--text-primary);">
                 Short-Form Only mode detects shorts/reels both on dedicated pages (/shorts, /reels)
-                and embedded in home feeds. <strong style="color: var(--text-muted);">Note:</strong> TikTok is entirely
+                and embedded in home feeds. <strong style="color: var(--emerald-400);">Note:</strong> TikTok is entirely
                 short-form,
                 so "Short-Form Only" will block the whole site.
             </span>
