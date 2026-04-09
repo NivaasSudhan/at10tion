@@ -1,7 +1,7 @@
 # Privacy Policy for @10tion
 
 **Effective Date:** February 8, 2026  
-**Last Updated:** February 8, 2026
+**Last Updated:** April 4, 2026
 
 ## Overview
 
@@ -72,7 +72,7 @@ We request minimal permissions required for functionality:
 | Permission | Purpose | Data Accessed |
 |------------|---------|---------------|
 | `storage` | Save your settings locally | None (local only) |
-| `tabs` | Close blocked tabs | Tab IDs only (not content) |
+
 | `alarms` | Persist break timers | None |
 | `scripting` | Inject blocking overlay | Page DOM for display only |
 | `host_permissions` | Block specified sites | URL patterns only |

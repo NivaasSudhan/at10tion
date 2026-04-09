@@ -5,7 +5,6 @@
     "description": "Reclaim your attention from endless scrolling. Mindful breaks from short-form content.",
     "permissions": [
         "storage",
-        "tabs",
         "alarms",
         "scripting"
     ],
